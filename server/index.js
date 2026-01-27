@@ -5,7 +5,15 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://root:root@cluster0.orxbd04.mongodb.net/ahlam_db';
+
+// SECURITY UPDATE: We strictly use the environment variable.
+// If this is missing, the app should fail rather than using a hardcoded password.
+const MONGO_URI = process.env.MONGODB_URI;
+
+if (!MONGO_URI) {
+    console.error("CRITICAL ERROR: MONGODB_URI environment variable is not defined.");
+    // We do not exit process here to allow Vercel build to pass, but runtime will fail if not set.
+}
 
 app.use(cors({
     origin: '*', 
@@ -17,6 +25,10 @@ app.use(express.json({ limit: '10mb' }));
 let cachedPromise = null;
 
 const connectDB = async () => {
+  if (!MONGO_URI) {
+      throw new Error("Database URI is missing in environment variables");
+  }
+
   if (cachedPromise) {
     return cachedPromise;
   }
