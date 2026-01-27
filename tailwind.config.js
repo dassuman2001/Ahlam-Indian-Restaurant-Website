@@ -12,19 +12,22 @@ export default {
       },
       colors: {
         charcoal: {
-          800: '#57534e', // stone-600 (Lighter borders)
-          900: '#292524', // stone-800 (Cards - lighter than before)
-          950: '#1c1917', // stone-900 (Main BG)
+          800: '#57534e', 
+          900: '#292524', 
+          950: '#1c1917', 
         },
         elegant: {
-          base: '#272522', // A rich, warm dark grey
-          card: '#322f2c', // Slightly lighter for cards
+          // New "Dark Oliveness" Theme
+          // Base: A rich, deep mossy green/olive (not pitch black)
+          base: '#202620', 
+          // Card: A lighter, more visible olive tone to separate content
+          card: '#2A332A', 
         },
         gold: {
           400: '#fbbf24',
           500: '#d97706',
           600: '#b45309',
-          accent: '#E5C168', // Softer, more expensive looking gold
+          accent: '#E8C772', // Slightly brighter gold to pop against the green
         }
       }
     },
