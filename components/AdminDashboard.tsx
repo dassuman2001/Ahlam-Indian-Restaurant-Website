@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { BookingService, MenuService } from '../services/db';
 import { Booking, MenuItem } from '../types';
-import { Check, X, LogOut, RefreshCw, Mail, Utensils, BookOpen, Edit2, Trash2, Plus, Upload, Lock, User, Calendar, Clock, Image as ImageIcon, Phone } from 'lucide-react';
+import { MENU_ITEMS } from '../constants';
+import { Check, X, LogOut, Mail, Utensils, BookOpen, Edit2, Trash2, Plus, Upload, Lock, User, Calendar, Clock, Phone, Database } from 'lucide-react';
 
 // Toast Notification Component
 const Toast = ({ message, type }: { message: string, type: 'success' | 'info' }) => (
@@ -29,6 +30,7 @@ const AdminDashboard: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loadingMenu, setLoadingMenu] = useState(true);
   const [isEditingMenu, setIsEditingMenu] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
   const [currentMenuItem, setCurrentMenuItem] = useState<Partial<MenuItem>>({
       name: '', description: '', price: '', image: '', category: 'chennai-starter', isVegan: false, isChefSpecial: false
   });
@@ -122,6 +124,25 @@ const AdminDashboard: React.FC = () => {
       } catch (e) {
           console.error(e);
           alert("Failed to save menu item");
+      }
+  };
+
+  const handleSeedDatabase = async () => {
+      if (!window.confirm("This will upload all default menu items to the database. Continue?")) return;
+      setIsSeeding(true);
+      try {
+          for (const item of MENU_ITEMS) {
+              // Remove ID as MongoDB generates it
+              const { id, ...itemData } = item;
+              await MenuService.add(itemData);
+          }
+          showNotification("Database seeded successfully!", 'success');
+          fetchMenu();
+      } catch (error) {
+          console.error(error);
+          showNotification("Failed to seed database", 'info');
+      } finally {
+          setIsSeeding(false);
       }
   };
 
@@ -285,20 +306,32 @@ const AdminDashboard: React.FC = () => {
           {/* Add/Edit Form Toggle */}
           <div className="flex justify-between items-center bg-elegant-card p-4 rounded-lg border border-white/5">
               <h3 className="text-white font-serif text-lg">Menu Items ({menuItems.length})</h3>
-              <button 
-                onClick={() => {
-                    setIsEditingMenu(!isEditingMenu);
-                    setCurrentMenuItem({ name: '', description: '', price: '', image: '', category: 'chennai-starter', isVegan: false, isChefSpecial: false });
-                }}
-                className={`flex items-center px-6 py-2 rounded-sm transition-colors text-xs font-bold uppercase tracking-widest ${
-                    isEditingMenu 
-                    ? 'bg-stone-700 text-white hover:bg-stone-600' 
-                    : 'bg-gradient-to-r from-gold-500 to-gold-600 text-white hover:shadow-lg'
-                }`}
-              >
-                  {isEditingMenu ? <X size={16} className="mr-2"/> : <Plus size={16} className="mr-2"/>}
-                  {isEditingMenu ? 'Cancel' : 'Add New Item'}
-              </button>
+              <div className="flex gap-4">
+                  {menuItems.length === 0 && !loadingMenu && (
+                      <button 
+                        onClick={handleSeedDatabase}
+                        disabled={isSeeding}
+                        className="flex items-center px-4 py-2 bg-stone-700 hover:bg-stone-600 text-white rounded-sm transition-colors text-xs font-bold uppercase tracking-widest"
+                      >
+                        <Database size={16} className="mr-2"/>
+                        {isSeeding ? 'Seeding...' : 'Seed Default Menu'}
+                      </button>
+                  )}
+                  <button 
+                    onClick={() => {
+                        setIsEditingMenu(!isEditingMenu);
+                        setCurrentMenuItem({ name: '', description: '', price: '', image: '', category: 'chennai-starter', isVegan: false, isChefSpecial: false });
+                    }}
+                    className={`flex items-center px-6 py-2 rounded-sm transition-colors text-xs font-bold uppercase tracking-widest ${
+                        isEditingMenu 
+                        ? 'bg-stone-700 text-white hover:bg-stone-600' 
+                        : 'bg-gradient-to-r from-gold-500 to-gold-600 text-white hover:shadow-lg'
+                    }`}
+                  >
+                      {isEditingMenu ? <X size={16} className="mr-2"/> : <Plus size={16} className="mr-2"/>}
+                      {isEditingMenu ? 'Cancel' : 'Add New Item'}
+                  </button>
+              </div>
           </div>
 
           {/* Edit Form */}

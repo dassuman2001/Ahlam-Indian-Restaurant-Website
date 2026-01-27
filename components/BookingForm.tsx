@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookingService } from '../services/db';
 import { RESTAURANT_DETAILS } from '../constants';
-import { Calendar, Clock, User, CheckCircle, Mail } from 'lucide-react';
+import { Clock, CheckCircle } from 'lucide-react';
 
 const BookingForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +15,11 @@ const BookingForm: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'guests' ? parseInt(value, 10) : value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -178,7 +182,7 @@ const BookingForm: React.FC = () => {
                     className="w-full bg-elegant-base border-b border-white/10 rounded-sm px-4 py-3 focus:border-gold-accent focus:ring-0 outline-none text-white placeholder-stone-500"
                   >
                     {[1,2,3,4,5,6,7,8,9,10, '10+'].map(num => (
-                      <option key={num} value={num}>{num} Guests</option>
+                      <option key={num} value={typeof num === 'string' ? 10 : num}>{num} Guests</option>
                     ))}
                   </select>
                 </div>
