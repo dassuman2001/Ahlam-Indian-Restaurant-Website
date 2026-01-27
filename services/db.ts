@@ -1,10 +1,11 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
 // PRODUCTION CONFIGURATION:
-// When hosting the frontend (Vercel/Netlify), add an Environment Variable:
-// VITE_API_URL = https://your-backend-url.onrender.com/api
-// If variable is missing, it falls back to localhost for development.
-const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:5000/api';
+// On Vercel (PROD=true), we use the relative path '/api' to talk to the backend on the same domain.
+// Locally, we fallback to localhost:5000.
+const API_URL = (import.meta as any).env.PROD 
+  ? '/api' 
+  : ((import.meta as any).env.VITE_API_URL || 'http://localhost:5000/api');
 
 export const BookingService = {
   // Get all bookings from MongoDB
@@ -15,7 +16,6 @@ export const BookingService = {
       return await response.json();
     } catch (e) {
       console.error("API Error:", e);
-      // Fallback or empty array if server is down to prevent app crash
       return [];
     }
   },
