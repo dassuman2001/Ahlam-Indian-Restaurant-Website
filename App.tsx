@@ -3,19 +3,22 @@ import Home from './pages/Home';
 import AdminDashboard from './components/AdminDashboard';
 
 const App: React.FC = () => {
-  const [route, setRoute] = useState(window.location.hash);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setRoute(window.location.hash);
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Simple Router Logic
-  if (route === '#/admin') {
+  // Simple Router Logic based on Pathname
+  // Matches '/admin' or '/admin/'
+  const isAdmin = currentPath.replace(/\/$/, '') === '/admin';
+
+  if (isAdmin) {
     return <AdminDashboard />;
   }
 

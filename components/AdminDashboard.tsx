@@ -49,7 +49,8 @@ const AdminDashboard: React.FC = () => {
   const handleLogout = () => {
       setIsAuthenticated(false);
       setPassword('');
-      window.location.hash = ''; // Return to main site
+      // Navigate to home page
+      window.location.href = '/'; 
   };
 
   // --- Data Fetching ---
@@ -187,7 +188,7 @@ const AdminDashboard: React.FC = () => {
                     </form>
                     
                     <div className="mt-8 text-center">
-                        <a href="#/" className="text-xs text-stone-500 hover:text-stone-300 transition-colors">← Return to Website</a>
+                        <a href="/" className="text-xs text-stone-500 hover:text-stone-300 transition-colors">← Return to Website</a>
                     </div>
                 </div>
             </div>
@@ -313,13 +314,18 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         <div>
                             <label className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block">Price</label>
-                            <input 
-                                placeholder="e.g. £9.99" 
-                                className="w-full bg-elegant-base border border-white/10 rounded-sm px-4 py-3 text-white focus:border-gold-accent outline-none" 
-                                value={currentMenuItem.price} 
-                                onChange={e => setCurrentMenuItem({...currentMenuItem, price: e.target.value})} 
-                                required 
-                            />
+                            <div className="relative">
+                                <span className="absolute left-4 top-3 text-stone-400 font-serif">£</span>
+                                <input 
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="9.99" 
+                                    className="w-full bg-elegant-base border border-white/10 rounded-sm pl-8 pr-4 py-3 text-white focus:border-gold-accent outline-none" 
+                                    value={currentMenuItem.price ? currentMenuItem.price.replace('£', '') : ''} 
+                                    onChange={e => setCurrentMenuItem({...currentMenuItem, price: e.target.value ? `£${e.target.value}` : ''})} 
+                                    required 
+                                />
+                            </div>
                         </div>
                       </div>
                       
