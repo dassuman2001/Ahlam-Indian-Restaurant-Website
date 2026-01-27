@@ -99,13 +99,21 @@ const AdminDashboard: React.FC = () => {
   const handleMenuSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
+          // Robust Formatting: Ensure price always starts with £
+          const rawPrice = currentMenuItem.price || '0';
+          const formattedPrice = rawPrice.trim().startsWith('£') 
+              ? rawPrice.trim() 
+              : `£${rawPrice.trim()}`;
+          
+          const itemToSave = { ...currentMenuItem, price: formattedPrice };
+
           if (currentMenuItem.id) {
               // Update
-              await MenuService.update(currentMenuItem as MenuItem);
+              await MenuService.update(itemToSave as MenuItem);
               showNotification("Item Updated Successfully", 'success');
           } else {
               // Create
-              await MenuService.add(currentMenuItem as Omit<MenuItem, 'id'>);
+              await MenuService.add(itemToSave as Omit<MenuItem, 'id'>);
               showNotification("Item Added Successfully", 'success');
           }
           setIsEditingMenu(false);
@@ -315,13 +323,13 @@ const AdminDashboard: React.FC = () => {
                         <div>
                             <label className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block">Price</label>
                             <div className="relative">
-                                <span className="absolute left-4 top-3 text-stone-400 font-serif">£</span>
+                                <span className="absolute left-3 top-3 text-stone-400 font-serif font-bold">£</span>
                                 <input 
                                     type="number"
                                     step="0.01"
                                     placeholder="9.99" 
-                                    className="w-full bg-elegant-base border border-white/10 rounded-sm pl-8 pr-4 py-3 text-white focus:border-gold-accent outline-none" 
-                                    value={currentMenuItem.price ? currentMenuItem.price.replace('£', '') : ''} 
+                                    className="w-full bg-elegant-base border border-white/10 rounded-sm pl-8 pr-4 py-3 text-white focus:border-gold-accent outline-none font-medium" 
+                                    value={currentMenuItem.price ? currentMenuItem.price.replace(/^£/, '') : ''} 
                                     onChange={e => setCurrentMenuItem({...currentMenuItem, price: e.target.value ? `£${e.target.value}` : ''})} 
                                     required 
                                 />
@@ -419,7 +427,9 @@ const AdminDashboard: React.FC = () => {
                       <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                               <h4 className="font-bold text-white truncate pr-2 font-serif tracking-wide">{item.name}</h4>
-                              <span className="text-sm font-bold text-gold-accent whitespace-nowrap">{item.price}</span>
+                              <span className="text-sm font-bold text-gold-accent whitespace-nowrap">
+                                {item.price.startsWith('£') ? item.price : `£${item.price}`}
+                              </span>
                           </div>
                           <p className="text-xs text-stone-400 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>
                           <div className="flex gap-2 mt-3">
