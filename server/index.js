@@ -1,18 +1,24 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = 5000;
+
+// Hosting services provide the PORT variable. Fallback to 5000 for local.
+const PORT = process.env.PORT || 5000;
+
+//  MONGODB_URI variable.
+// Fallback to local DB if not provided.
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://root:root@cluster0.orxbd04.mongodb.net/ahlam_db';
 
 // Middleware
 app.use(cors()); // Allow Frontend to talk to Backend
 app.use(express.json({ limit: '10mb' })); // Support base64 images
 
 // MongoDB Connection
-// ensure you have MongoDB installed and running locally
-mongoose.connect('mongodb://127.0.0.1:27017/ahlam_db')
-  .then(() => console.log('Connected to MongoDB (ahlam_db)'))
+mongoose.connect(MONGO_URI)
+  .then(() => console.log(`Connected to MongoDB: ${MONGO_URI.includes('127.0.0.1') ? 'Local' : 'Cloud'}`))
   .catch(err => console.error('Could not connect to MongoDB', err));
 
 // --- Schemas ---
@@ -61,6 +67,10 @@ const MenuItem = mongoose.model('MenuItem', MenuSchema);
 const Booking = mongoose.model('Booking', BookingSchema);
 
 // --- Routes ---
+
+app.get('/', (req, res) => {
+    res.send('Ahlam Restaurant API is running');
+});
 
 // 1. Get Menu
 app.get('/api/menu', async (req, res) => {
@@ -136,4 +146,4 @@ app.put('/api/bookings/:id', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

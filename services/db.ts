@@ -1,7 +1,10 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
-// Points to your local Node.js server
-const API_URL = 'http://localhost:5000/api';
+// PRODUCTION CONFIGURATION:
+// When hosting the frontend (Vercel/Netlify), add an Environment Variable:
+// VITE_API_URL = https://your-backend-url.onrender.com/api
+// If variable is missing, it falls back to localhost for development.
+const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const BookingService = {
   // Get all bookings from MongoDB
