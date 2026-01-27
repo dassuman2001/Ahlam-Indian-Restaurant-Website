@@ -1,11 +1,8 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
-// PRODUCTION CONFIGURATION:
-// On Vercel (PROD=true), we use the relative path '/api' to talk to the backend on the same domain.
-// Locally, we fallback to localhost:5000.
-const API_URL = (import.meta as any).env.PROD 
-  ? '/api' 
-  : ((import.meta as any).env.VITE_API_URL || 'http://localhost:5000/api');
+// Using the hosted API URL directly as requested.
+// This ensures the frontend (local or production) always talks to your live backend.
+const API_URL = 'https://ahlam-indian-restaurant-website-j2v.vercel.app/api';
 
 export const BookingService = {
   // Get all bookings from MongoDB
