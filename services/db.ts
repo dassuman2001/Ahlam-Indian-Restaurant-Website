@@ -1,10 +1,8 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
-// PROFESSIONAL SETUP:
-// 1. Locally, this looks for VITE_API_URL in your .env file (e.g., http://localhost:5000/api)
-// 2. In Production (Vercel), if VITE_API_URL is not set in dashboard, it defaults to '/api'
-//    which automatically talks to the backend on the same domain.
-const API_URL = (import.meta as any).env.VITE_API_URL || '/api';
+// Using the hosted API URL directly as requested.
+// This ensures the frontend (local or production) always talks to your live backend.
+const API_URL = 'https://ahlam-indian-restaurant-website-j2v.vercel.app/api';
 
 export const BookingService = {
   // Get all bookings from MongoDB
