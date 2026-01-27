@@ -17,17 +17,15 @@ export default {
           950: '#1c1917', 
         },
         elegant: {
-          // New "Dark Oliveness" Theme
-          // Base: A rich, deep mossy green/olive (not pitch black)
-          base: '#202620', 
-          // Card: A lighter, more visible olive tone to separate content
-          card: '#2A332A', 
+          // Lighter Olive Theme ("Dark Oliveness" but slightly lifted)
+          base: '#242A24', // Lifted from #202620
+          card: '#2E362E', // Lifted from #2A332A
         },
         gold: {
           400: '#fbbf24',
           500: '#d97706',
           600: '#b45309',
-          accent: '#E8C772', // Slightly brighter gold to pop against the green
+          accent: '#E8C772', 
         }
       }
     },

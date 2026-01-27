@@ -13,8 +13,8 @@ const Hero: React.FC = () => {
           className="w-full h-full object-cover opacity-60" 
         />
         {/* Softened gradient to elegant base */}
-        <div className="absolute inset-0 bg-gradient-to-t from-elegant-base via-elegant-base/60 to-transparent"></div>
-        <div className="absolute inset-0 bg-elegant-base/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-elegant-base via-elegant-base/50 to-transparent"></div>
+        <div className="absolute inset-0 bg-elegant-base/20"></div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
           <div className="flex space-x-1">
              {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={12} className="fill-gold-accent text-gold-accent" />)}
           </div>
-          <span className="text-xs uppercase tracking-widest text-stone-200 ml-3 border-l border-white/20 pl-3">
+          <span className="text-xs uppercase tracking-widest text-stone-100 ml-3 border-l border-white/20 pl-3 font-bold">
             Streatham's Finest
           </span>
         </div>
@@ -36,16 +36,16 @@ const Hero: React.FC = () => {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-accent via-gold-400 to-gold-600 italic">Spice & Soul</span>
         </h1>
         
-        <p className="mt-4 max-w-xl text-lg md:text-xl text-stone-200 font-light leading-relaxed drop-shadow-md">
+        <p className="mt-4 max-w-xl text-lg md:text-xl text-stone-100 font-light leading-relaxed drop-shadow-md">
           Experience authentic South Indian cuisine in a setting of modern elegance. 
           {RESTAURANT_DETAILS.tagline}.
         </p>
         
         <div className="mt-12 flex flex-col md:flex-row gap-6">
-          <a href="#book" className="px-10 py-4 bg-gold-accent text-elegant-base font-bold text-sm tracking-widest uppercase hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg shadow-gold-accent/20">
+          <a href="#book" className="px-10 py-4 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-sm tracking-widest uppercase hover:from-white hover:to-white hover:text-elegant-base transition-all duration-300 shadow-lg shadow-gold-accent/20 rounded-sm">
             Reserve a Table
           </a>
-          <a href="#menu" className="px-10 py-4 border border-stone-400 text-stone-200 font-bold text-sm tracking-widest uppercase hover:border-gold-accent hover:text-gold-accent hover:bg-elegant-base/50 transition-all duration-300">
+          <a href="#menu" className="px-10 py-4 border border-stone-300 text-stone-100 font-bold text-sm tracking-widest uppercase hover:border-gold-accent hover:text-gold-accent hover:bg-elegant-base/50 transition-all duration-300 rounded-sm">
             View Menu
           </a>
         </div>

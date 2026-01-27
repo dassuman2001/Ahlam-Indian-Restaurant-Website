@@ -50,7 +50,7 @@ const MenuSection: React.FC = () => {
               className={`px-6 py-3 text-xs tracking-widest uppercase transition-all duration-300 border rounded-sm ${
                 activeCategory === cat.id 
                   ? 'border-gold-accent bg-gold-accent text-elegant-base font-bold shadow-lg shadow-gold-accent/20' 
-                  : 'border-white/10 text-stone-400 hover:border-gold-accent hover:text-gold-accent bg-elegant-card'
+                  : 'border-white/10 text-stone-300 hover:border-gold-accent hover:text-gold-accent bg-elegant-card'
               }`}
             >
               {cat.label}
@@ -59,7 +59,7 @@ const MenuSection: React.FC = () => {
         </div>
 
         {loading ? (
-            <div className="text-center text-stone-400 py-12">Loading menu items...</div>
+            <div className="text-center text-stone-300 py-12">Loading menu items...</div>
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
             {filteredItems.map((item) => (
@@ -91,10 +91,10 @@ const MenuSection: React.FC = () => {
                     <h3 className="text-xl font-serif text-white group-hover:text-gold-accent transition-colors duration-300">
                         {item.name}
                     </h3>
-                    <span className="font-serif text-lg text-gold-accent">{item.price}</span>
+                    <span className="font-serif text-lg text-gold-accent font-bold">{item.price}</span>
                     </div>
-                    <p className="text-stone-400 text-sm font-light leading-relaxed mb-6 flex-grow">{item.description}</p>
-                    <button className="text-xs uppercase tracking-widest text-stone-500 group-hover:text-white transition-colors flex items-center gap-2 mt-auto">
+                    <p className="text-stone-300 text-sm font-light leading-relaxed mb-6 flex-grow">{item.description}</p>
+                    <button className="text-xs uppercase tracking-widest text-stone-400 group-hover:text-white transition-colors flex items-center gap-2 mt-auto">
                         Order Now <span className="block w-4 h-[1px] bg-stone-500 group-hover:bg-white transition-colors"></span>
                     </button>
                 </div>

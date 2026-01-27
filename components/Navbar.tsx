@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
             <a href="#menu" className="text-xs lg:text-sm uppercase tracking-widest hover:text-gold-accent transition-colors font-medium">Menu</a>
             
             <div className="flex items-center gap-6">
-                <a href="#book" className="px-5 py-2.5 border border-gold-accent text-gold-accent hover:bg-gold-accent hover:text-elegant-base transition-all uppercase tracking-widest text-[11px] font-bold whitespace-nowrap shadow-sm hover:shadow-gold-accent/20">
+                <a href="#book" className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white hover:from-white hover:to-white hover:text-elegant-base transition-all uppercase tracking-widest text-[11px] font-bold whitespace-nowrap shadow-md hover:shadow-gold-accent/20 rounded-sm">
                 Book a Table
                 </a>
                 
