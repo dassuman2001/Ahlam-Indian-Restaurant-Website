@@ -4,19 +4,29 @@ import AdminDashboard from './components/AdminDashboard';
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [currentHash, setCurrentHash] = useState(window.location.hash);
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handleNavigation = () => {
       setCurrentPath(window.location.pathname);
+      setCurrentHash(window.location.hash);
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleNavigation);
+    window.addEventListener('hashchange', handleNavigation);
+    
+    return () => {
+      window.removeEventListener('popstate', handleNavigation);
+      window.removeEventListener('hashchange', handleNavigation);
+    };
   }, []);
 
-  // Simple Router Logic based on Pathname
-  // Matches '/admin' or '/admin/'
-  const isAdmin = currentPath.replace(/\/$/, '') === '/admin';
+  // Router Logic
+  // Support Clean URL: /admin
+  // Support Hash URL: /#/admin (Common in static deployments or bookmarks)
+  const isAdmin = 
+    currentPath.replace(/\/$/, '') === '/admin' || 
+    currentHash.includes('/admin');
 
   if (isAdmin) {
     return <AdminDashboard />;
