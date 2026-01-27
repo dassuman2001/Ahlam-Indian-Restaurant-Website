@@ -16,10 +16,13 @@ const Testimonials: React.FC = () => (
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {REVIEWS.map((review) => (
-          <div key={review.id} className="bg-elegant-base p-10 border border-white/5 relative group hover:border-gold-accent/30 transition-colors shadow-lg">
-            <Quote className="absolute top-6 left-6 text-charcoal-800 w-8 h-8 -z-0" />
-            <p className="text-stone-300 font-serif italic mb-6 relative z-10 leading-relaxed">"{review.text}"</p>
-            <div className="flex items-center">
+          <div key={review.id} className="bg-elegant-base p-10 border border-white/5 relative group hover:border-gold-accent/30 transition-colors shadow-lg flex flex-col">
+            {/* Fixed: Quote icon is now relative to avoid overlapping text */}
+            <div className="mb-6">
+                 <Quote className="text-gold-accent/30 w-10 h-10" />
+            </div>
+            <p className="text-stone-300 font-serif italic mb-8 relative z-10 leading-relaxed flex-grow">"{review.text}"</p>
+            <div className="flex items-center mt-auto">
                 <div className="w-8 h-[1px] bg-gold-accent mr-3"></div>
                 <p className="text-gold-accent text-xs uppercase tracking-widest">{review.author}</p>
             </div>
