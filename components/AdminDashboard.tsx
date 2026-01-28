@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
       setIsAuthenticated(false);
       localStorage.removeItem('ahlam_admin_session');
       setPassword('');
-      window.location.href = '/'; 
+      // Removed window.location.href = '/' to stay on login screen
   };
 
   // --- Data Fetching ---
