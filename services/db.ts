@@ -1,6 +1,8 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
-// Hardcoded API URL for Production Deployment
+// Use relative path for API. 
+// In production, this resolves to the same domain.
+// In development, Vite proxy handles the forwarding to localhost:5000.
 const API_URL = 'https://ahlam-indian-restaurant-website-j2v.vercel.app/api';
 
 export const BookingService = {

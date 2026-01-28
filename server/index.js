@@ -35,10 +35,8 @@ const sendEmail = async (to, subject, html) => {
   }
 };
 
-app.use(cors({
-    origin: '*', 
-    credentials: true
-}));
+// Allow all origins for simplicity and to avoid CORS issues in production
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // Cached connection for Serverless
@@ -49,22 +47,42 @@ const connectDB = async () => {
     return cachedPromise;
   }
   
-  cachedPromise = mongoose.connect(MONGO_URI)
+  // Set connection options for better reliability in serverless
+  const opts = {
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 5000, // Fail fast if no connection
+  };
+
+  cachedPromise = mongoose.connect(MONGO_URI, opts)
     .then((mongoose) => {
         console.log('MongoDB Connected');
         return mongoose;
+    })
+    .catch((err) => {
+        console.error("MongoDB Connection Failed:", err);
+        cachedPromise = null; // Reset cache so next request tries again
+        throw err;
     });
+    
   return cachedPromise;
 };
 
 // Middleware to ensure DB is connected on every request
 app.use(async (req, res, next) => {
+  // Skip DB connection for basic health check or options
+  if (req.method === 'OPTIONS') return next();
+  
   try {
     await connectDB();
     next();
   } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({ error: 'Database connection failed' });
+    console.error('Database connection error in middleware:', error);
+    // Return JSON error so frontend doesn't just crash with empty 500
+    res.status(500).json({ 
+        error: 'Database connection failed', 
+        details: error.message,
+        hint: 'Please check MONGODB_URI in Vercel environment variables.'
+    });
   }
 });
 
@@ -118,11 +136,16 @@ app.get('/', (req, res) => {
     res.send('Ahlam Restaurant API is running');
 });
 
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
 app.get('/api/menu', async (req, res) => {
   try {
     const items = await MenuItem.find();
     res.json(items);
   } catch (error) {
+    console.error("GET /api/menu error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -169,12 +192,9 @@ app.post('/api/bookings', async (req, res) => {
     const newBooking = new Booking(req.body);
     const saved = await newBooking.save();
     console.log(`[New Booking] ${saved.fullName} for ${saved.guests} guests.`);
-
-    // NOTE: Removed Admin Email Notification as requested.
-    // The Admin will now rely on the Dashboard Notification Sound.
-
     res.json(saved);
   } catch (error) {
+    console.error("Booking Error:", error);
     res.status(500).json({ error: error.message });
   }
 });

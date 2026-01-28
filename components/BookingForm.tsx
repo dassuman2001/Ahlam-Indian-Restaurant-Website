@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookingService } from '../services/db';
 import { RESTAURANT_DETAILS } from '../constants';
-import { Clock, CheckCircle } from 'lucide-react';
+import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 const BookingForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +13,7 @@ const BookingForm: React.FC = () => {
     guests: 2
   });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -25,6 +26,7 @@ const BookingForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
+    setErrorMessage('');
     
     // Basic Time Validation (Opening - 12 AM)
     const [hour] = formData.time.split(':').map(Number);
@@ -48,6 +50,7 @@ const BookingForm: React.FC = () => {
     } catch (error) {
       console.error(error);
       setStatus('error');
+      setErrorMessage('Something went wrong. Please check your internet connection or call us directly.');
     }
   };
 
@@ -103,10 +106,17 @@ const BookingForm: React.FC = () => {
                    <p className="text-sm text-stone-400 mt-1">{RESTAURANT_DETAILS.address}</p>
                 </div>
               </div>
+              <div className="flex items-start">
+                <div className="mt-1 mr-4 text-gold-accent">📞</div>
+                <div>
+                   <p className="text-white font-serif text-lg">Contact</p>
+                   <p className="text-sm text-stone-400 mt-1">{RESTAURANT_DETAILS.phone}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Form Side - Darkened for luxury and contrast */}
+          {/* Form Side */}
           <div className="bg-elegant-card/50 p-12 lg:p-16 border-t lg:border-t-0 lg:border-l border-white/5">
             <h2 className="text-2xl font-serif font-bold text-white mb-8">Secure Your Table</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -189,6 +199,13 @@ const BookingForm: React.FC = () => {
                   </select>
                 </div>
               </div>
+
+              {status === 'error' && (
+                <div className="bg-red-900/30 border border-red-800 p-4 rounded-sm flex items-start gap-3">
+                   <AlertCircle className="text-red-400 shrink-0" size={18} />
+                   <p className="text-red-200 text-sm">{errorMessage}</p>
+                </div>
+              )}
 
               <div className="pt-6">
                 <button 
