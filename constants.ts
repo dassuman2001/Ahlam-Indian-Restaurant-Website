@@ -7,7 +7,7 @@ export const RESTAURANT_DETAILS = {
   phone: "+44 20 3011 3039",
   openingTime: "12:00", 
   closingTime: "24:00", // Midnight
-  instagramUrl: "https://instagram.com",
+  instagramUrl: "https://www.instagram.com/ahlamindian_restaurant?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
   rating: 4.8,
 };
 
