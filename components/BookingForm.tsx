@@ -56,9 +56,11 @@ const BookingForm: React.FC = () => {
       <div id="book" className="py-24 bg-elegant-base text-white flex justify-center items-center">
         <div className="bg-elegant-card p-12 text-center max-w-lg mx-4 border border-gold-accent/20 shadow-2xl rounded-sm">
           <CheckCircle className="w-16 h-16 text-gold-accent mx-auto mb-6" />
-          <h3 className="text-3xl font-serif mb-4">Request Received</h3>
+          <h3 className="text-3xl font-serif mb-4">Request Sent Successfully</h3>
           <p className="text-stone-300 font-light mb-8">
-            Thank you. We have received your request. A confirmation email has been sent to your address.
+            Thank you, we have received your booking request.
+            <br/><br/>
+            You will be notified by email once your table is confirmed by our team.
           </p>
           <button 
             onClick={() => setStatus('idle')}
@@ -197,7 +199,7 @@ const BookingForm: React.FC = () => {
                     {status === 'submitting' ? 'Processing...' : 'Confirm Request'}
                 </button>
                 <p className="text-center text-xs text-stone-500 mt-4">
-                    Powered by EmailJS (Simulated). You will receive a confirmation email shortly.
+                   We will notify you via email when your booking is confirmed.
                 </p>
               </div>
 

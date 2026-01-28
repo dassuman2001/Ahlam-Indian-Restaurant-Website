@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { BookingService, MenuService } from '../services/db';
 import { Booking, MenuItem } from '../types';
 import { MENU_ITEMS } from '../constants';
-import { Check, X, LogOut, Mail, Utensils, BookOpen, Edit2, Trash2, Plus, Upload, Lock, User, Calendar, Clock, Phone, Database } from 'lucide-react';
+import { Check, X, LogOut, Mail, Utensils, BookOpen, Edit2, Trash2, Plus, Upload, Lock, User, Calendar, Clock, Phone, Database, Bell } from 'lucide-react';
 
 // Toast Notification Component
 const Toast = ({ message, type }: { message: string, type: 'success' | 'info' }) => (
@@ -15,8 +15,10 @@ const Toast = ({ message, type }: { message: string, type: 'success' | 'info' })
 );
 
 const AdminDashboard: React.FC = () => {
-  // Auth State
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Auth State - Initialize from LocalStorage for persistence
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('ahlam_admin_session') === 'true';
+  });
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
@@ -25,6 +27,7 @@ const AdminDashboard: React.FC = () => {
   // Booking State
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const bookingsRef = useRef<Booking[]>([]); // Ref to track length for notifications without triggering re-renders
   
   // Menu State
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -37,11 +40,19 @@ const AdminDashboard: React.FC = () => {
 
   const [notification, setNotification] = useState<{msg: string, type: 'success'|'info'} | null>(null);
 
+  // --- Notification Sound ---
+  const playNotificationSound = () => {
+    // Simple "Ding" sound
+    const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+    audio.play().catch(e => console.log("Audio play blocked until user interaction", e));
+  };
+
   // --- Auth Logic ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'admin') {
         setIsAuthenticated(true);
+        localStorage.setItem('ahlam_admin_session', 'true');
         setLoginError('');
     } else {
         setLoginError('Invalid Access Key');
@@ -50,23 +61,31 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = () => {
       setIsAuthenticated(false);
+      localStorage.removeItem('ahlam_admin_session');
       setPassword('');
-      // Navigate to home page
       window.location.href = '/'; 
   };
 
   // --- Data Fetching ---
 
-  const fetchBookings = async () => {
-    setLoadingBookings(true);
+  const fetchBookings = async (silent = false) => {
+    if (!silent) setLoadingBookings(true);
     const data = await BookingService.getAll();
     const sorted = data.sort((a, b) => {
         if (a.status === 'pending' && b.status !== 'pending') return -1;
         if (a.status !== 'pending' && b.status === 'pending') return 1;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+    
+    // Check for NEW bookings to trigger sound (Only if we have a previous state)
+    if (bookingsRef.current.length > 0 && data.length > bookingsRef.current.length) {
+        playNotificationSound();
+        showNotification("New Booking Received!", "info");
+    }
+
     setBookings(sorted);
-    setLoadingBookings(false);
+    bookingsRef.current = sorted;
+    if (!silent) setLoadingBookings(false);
   };
 
   const fetchMenu = async () => {
@@ -76,6 +95,7 @@ const AdminDashboard: React.FC = () => {
       setLoadingMenu(false);
   };
 
+  // Initial Load
   useEffect(() => {
     if (isAuthenticated) {
         if (activeTab === 'bookings') fetchBookings();
@@ -83,12 +103,30 @@ const AdminDashboard: React.FC = () => {
     }
   }, [activeTab, isAuthenticated]);
 
+  // Polling for Bookings (Real-time notifications)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Check for new bookings every 15 seconds
+    const interval = setInterval(() => {
+        if (activeTab === 'bookings') {
+            fetchBookings(true); // Silent fetch
+        }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, activeTab]);
+
   // --- Booking Actions ---
 
   const handleStatusChange = async (id: string, newStatus: 'confirmed' | 'declined', customerName: string) => {
     try {
       await BookingService.updateStatus(id, newStatus);
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: newStatus } : b));
+      // Optimistic update
+      const updatedBookings = bookings.map(b => b.id === id ? { ...b, status: newStatus } : b);
+      setBookings(updatedBookings);
+      bookingsRef.current = updatedBookings;
+
       const emailType = newStatus === 'confirmed' ? 'CONFIRMATION' : 'CANCELLATION';
       showNotification(`Email sent to ${customerName}: ${emailType}`, 'success');
     } catch (error) {
@@ -101,7 +139,6 @@ const AdminDashboard: React.FC = () => {
   const handleMenuSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-          // Robust Formatting: Ensure price always starts with £
           const rawPrice = currentMenuItem.price || '0';
           const formattedPrice = rawPrice.trim().startsWith('£') 
               ? rawPrice.trim() 
@@ -110,11 +147,9 @@ const AdminDashboard: React.FC = () => {
           const itemToSave = { ...currentMenuItem, price: formattedPrice };
 
           if (currentMenuItem.id) {
-              // Update
               await MenuService.update(itemToSave as MenuItem);
               showNotification("Item Updated Successfully", 'success');
           } else {
-              // Create
               await MenuService.add(itemToSave as Omit<MenuItem, 'id'>);
               showNotification("Item Added Successfully", 'success');
           }
@@ -132,7 +167,6 @@ const AdminDashboard: React.FC = () => {
       setIsSeeding(true);
       try {
           for (const item of MENU_ITEMS) {
-              // Remove ID as MongoDB generates it
               const { id, ...itemData } = item;
               await MenuService.add(itemData);
           }
@@ -182,7 +216,6 @@ const AdminDashboard: React.FC = () => {
   if (!isAuthenticated) {
       return (
         <div className="min-h-screen bg-elegant-base flex items-center justify-center relative overflow-hidden">
-            {/* Dark Radial Background Effect */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold-accent/5 rounded-full blur-3xl"></div>
             
             <div className="relative z-10 w-full max-w-md px-6">
@@ -385,7 +418,6 @@ const AdminDashboard: React.FC = () => {
                          <div>
                             <label className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2 block">Image Source</label>
                             
-                            {/* File Upload Option */}
                             <div className="flex items-center space-x-2 mb-2">
                                 <label className="flex-1 cursor-pointer bg-elegant-base border border-white/10 hover:border-gold-accent text-stone-300 px-4 py-3 rounded-sm flex items-center justify-center transition-colors">
                                     <Upload size={16} className="mr-2" />
@@ -498,7 +530,10 @@ const AdminDashboard: React.FC = () => {
             </div>
             <div>
                 <h1 className="text-xl font-bold text-white tracking-wide">Admin Panel</h1>
-                <p className="text-[10px] text-stone-400 uppercase tracking-widest">Logged in as Manager</p>
+                <p className="text-[10px] text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    Live Dashboard
+                </p>
             </div>
           </div>
           <button 

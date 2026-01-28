@@ -1,8 +1,7 @@
 import { Booking, BookingStatus, MenuItem } from '../types';
 
-// Using the hosted API URL directly as requested.
-// This ensures the frontend (local or production) always talks to your live backend.
-const API_URL = 'https://ahlam-indian-restaurant-website-j2v.vercel.app/api';
+// Use a relative path so it works with Vite proxy locally AND Vercel in production.
+const API_URL = '/api';
 
 export const BookingService = {
   // Get all bookings from MongoDB

@@ -1,11 +1,39 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb+srv://root:root@cluster0.orxbd04.mongodb.net/ahlam_db';
+
+// --- Email Configuration ---
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Your Gmail address
+    pass: process.env.EMAIL_PASS  // Your App Password
+  }
+});
+
+const sendEmail = async (to, subject, html) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn("EMAIL SKIPPED: Missing EMAIL_USER or EMAIL_PASS in environment variables.");
+    return;
+  }
+  try {
+    await transporter.sendMail({
+      from: `"Ahlam Restaurant" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html
+    });
+    console.log(`Email sent to ${to}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${to}:`, error.message);
+  }
+};
 
 app.use(cors({
     origin: '*', 
@@ -13,7 +41,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 
-// Cached connection for Serverless (prevents too many connections in lambda)
+// Cached connection for Serverless
 let cachedPromise = null;
 
 const connectDB = async () => {
@@ -141,6 +169,10 @@ app.post('/api/bookings', async (req, res) => {
     const newBooking = new Booking(req.body);
     const saved = await newBooking.save();
     console.log(`[New Booking] ${saved.fullName} for ${saved.guests} guests.`);
+
+    // NOTE: Removed Admin Email Notification as requested.
+    // The Admin will now rely on the Dashboard Notification Sound.
+
     res.json(saved);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -151,6 +183,37 @@ app.put('/api/bookings/:id', async (req, res) => {
   try {
     const { status } = req.body;
     const updated = await Booking.findByIdAndUpdate(req.params.id, { status }, { new: true });
+
+    // Notify USER via Email if status changed
+    if (updated && updated.email) {
+      let subject = "";
+      let message = "";
+
+      if (status === 'confirmed') {
+        subject = "Booking Confirmed - Ahlam Restaurant";
+        message = `
+          <h3>Your Booking is Confirmed</h3>
+          <p>Dear ${updated.fullName},</p>
+          <p>We look forward to welcoming you.</p>
+          <p><strong>Date:</strong> ${updated.date} at ${updated.time}</p>
+          <p><strong>Guests:</strong> ${updated.guests}</p>
+          <p>Address: 217 Streatham High Rd, London SW16 6EG</p>
+        `;
+      } else if (status === 'declined') {
+        subject = "Update regarding your booking - Ahlam Restaurant";
+        message = `
+          <h3>Booking Status Update</h3>
+          <p>Dear ${updated.fullName},</p>
+          <p>Unfortunately, we cannot fulfill your request for ${updated.date} at ${updated.time}.</p>
+          <p>Please call us at +44 20 3011 3039 to arrange an alternative time.</p>
+        `;
+      }
+
+      if (subject) {
+        await sendEmail(updated.email, subject, message);
+      }
+    }
+
     res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
