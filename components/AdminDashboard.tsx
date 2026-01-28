@@ -107,12 +107,12 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Check for new bookings every 15 seconds
+    // Check for new bookings every 5 seconds
     const interval = setInterval(() => {
         if (activeTab === 'bookings') {
             fetchBookings(true); // Silent fetch
         }
-    }, 15000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [isAuthenticated, activeTab]);
